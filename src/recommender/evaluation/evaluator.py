@@ -16,7 +16,7 @@ def evaluate_model(model, evaluation_df, k=10):
                 "user_id": user_id, 
                 f"precision_at_{k}": precision_at_k(recommendations, relevant_movies, k),
                 f"recall_at_{k}": recall_at_k(recommendations, relevant_movies, k),
-                f"ndcg_at_{k} ": ndcg_at_k(recommendations, relevant_movies, k)
+                f"ndcg_at_{k}": ndcg_at_k(recommendations, relevant_movies, k)
                 })
         
     return pd.DataFrame(results)
