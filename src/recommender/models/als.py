@@ -61,11 +61,11 @@ class ALSRecommender:
 
         return self
     
-    def recommend(self, user_id, k=10):
+    def recommend(self, user_id, k=10, return_scores = False):
         if user_id not in self.user_to_idx:
             return []
         
-        user_idx = self.user_to_idx[user_id] #gets the movie id 
+        user_idx = self.user_to_idx[user_id] 
 
         movie_indices, scores = self.model.recommend(
             userid = user_idx, user_items = self.user_item_matrix[user_idx], N = k * 5, filter_already_liked_items = True)
@@ -73,14 +73,16 @@ class ALSRecommender:
         seen_movies = self.seen_by_user.get(user_id, set())
         
         recommendations = []
-        for idx in movie_indices:
+        for idx, score in zip(movie_indices, scores):
             movie_id = self.idx_to_movie[idx]
 
             if movie_id not in seen_movies:
-                recommendations.append(movie_id)
-            
+                if return_scores:
+                    recommendations.append((movie_id, float(score)))
+                else:
+                    recommendations.append(movie_id)
+                
             if len(recommendations) == k:
                 break
-
 
         return recommendations 

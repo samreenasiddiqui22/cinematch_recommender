@@ -29,7 +29,7 @@ class ContentRecommender:
 
         return self 
     
-    def recommend(self, user_id, k=10):
+    def recommend(self, user_id, k=10, return_scores = False):
 
         liked_movies = self.liked_by_user.get(user_id, [])
         if len(liked_movies) == 0: 
@@ -46,7 +46,7 @@ class ContentRecommender:
         user_profile = np.mean(liked_features, axis = 0).reshape(1,-1)
 
         #compare user's profile to every movie 
-        scores = cosine_similarity(user_profile, self.movie_features)[0]
+        scores = cosine_similarity(user_profile, self.movie_features)[0] #how similar the movie is to the user's average profile 
 
         ranked_indices = np.argsort(scores)[::-1]
 
@@ -54,7 +54,10 @@ class ContentRecommender:
         for idx in ranked_indices:
             movie_id = self.movie_ids[idx]
             if movie_id not in seen_movies: 
-                recommendations.append(movie_id)
+                if return_scores:
+                    recommendations.append((movie_id, float(scores[idx])))
+                else:
+                    recommendations.append(movie_id)
             if len(recommendations) == k: 
                 break 
         return recommendations 

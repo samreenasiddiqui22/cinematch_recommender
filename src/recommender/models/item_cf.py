@@ -35,7 +35,7 @@ class ItemCFRecommender:
 
         return self 
     
-    def recommend(self, user_id, k=10):
+    def recommend(self, user_id, k=10, return_scores = False):
         liked_movies = self.liked_by_user.get(user_id, [])
         if not liked_movies:
             return []
@@ -53,7 +53,10 @@ class ItemCFRecommender:
         for idx in ranked_indices: 
             movie_id = self.movie_ids[idx]
             if movie_id not in seen_movies:
-                recommendations.append(movie_id)
+                if return_scores:
+                    recommendations.append((movie_id, float(scores[idx])))
+                else:
+                    recommendations.append(movie_id)
 
             if len(recommendations) == k:
                 break 
