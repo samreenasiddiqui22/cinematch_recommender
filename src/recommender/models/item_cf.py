@@ -62,3 +62,32 @@ class ItemCFRecommender:
                 break 
 
         return recommendations
+    
+
+
+    def recommend_from_items(self, liked_movie_ids, k=10, return_scores = False):
+        liked_movie_ids = set(liked_movie_ids)
+
+        liked_indices = [self.movie_to_idx[movie_id] for movie_id in liked_movie_ids if movie_id in self.movie_to_idx]
+
+        if not liked_indices:
+            return []
+        
+        scores = np.asarray(self.similarity_matrix[liked_indices].sum(axis = 0)).ravel()
+
+        ranked_indices = np.argsort(scores)[::-1]
+        recommendations = []
+
+        for idx in ranked_indices: 
+            movie_id = self.movie_ids[idx]
+
+            if movie_id not in liked_movie_ids:
+                if return_scores: 
+                    recommendations.append((movie_id, float(scores[idx])))
+                else: 
+                    recommendations.append(movie_id)
+        
+            if len(recommendations) == k: 
+                break 
+
+        return recommendations 

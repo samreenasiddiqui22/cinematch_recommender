@@ -61,3 +61,34 @@ class ContentRecommender:
             if len(recommendations) == k: 
                 break 
         return recommendations 
+    
+
+    def recommend_from_items(self, liked_movie_ids, k =10, return_scores = False):
+        liked_movie_ids = set(liked_movie_ids)
+
+        liked_indices = [self.movie_id_to_index[movie_id] for movie_id in liked_movie_ids if movie_id in self.movie_id_to_index]
+
+        if not liked_indices:
+            return []
+        
+        liked_features = self.movie_features[liked_indices]
+        user_profile = np.mean(liked_features, axis = 0).reshape(1,-1)
+
+        scores = cosine_similarity(user_profile, self.movie_features).ravel()
+
+        ranked_indices = np.argsort(scores)[::-1]
+        recommendations = []
+
+        for idx in ranked_indices: 
+            movie_id = self.movie_ids[idx]
+
+            if movie_id not in liked_movie_ids:
+                if return_scores:
+                    recommendations.append((movie_id, float(scores[idx])))
+
+                else:
+                    recommendations.append(movie_id)
+            if len(recommendations) == k:
+                break 
+
+        return recommendations 

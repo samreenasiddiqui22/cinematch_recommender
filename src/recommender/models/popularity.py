@@ -24,3 +24,18 @@ class PopularityRecommender:
                 break
 
         return recommendations[:k]
+    
+    def recommend_from_items(self, liked_movie_ids, k = 10, return_scores = False):
+        liked_movie_ids = set(liked_movie_ids)
+        recommendations = []
+        for movie_id, score in self.popular_movies.items():
+            if movie_id not in liked_movie_ids:
+                if return_scores:
+                    recommendations.append((movie_id, float(score)))
+
+                else:
+                    recommendations.append(movie_id)
+            if len(recommendations) == k: 
+                break 
+
+        return recommendations 

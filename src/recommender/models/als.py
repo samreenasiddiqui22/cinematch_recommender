@@ -86,3 +86,29 @@ class ALSRecommender:
                 break
 
         return recommendations 
+    
+    def recommend_from_items(self, liked_movie_ids, k = 10, return_scores = False):
+        liked_indices = [self.movie_to_idx[movie_id] for movie_id in liked_movie_ids if movie_id in self.movie_to_idx]
+        if not liked_indices:
+            return []
+        
+        #temporary 1-user x num_movies interaction matrix 
+        values = np.ones(len(liked_indices))
+        rows = np.zeros(len(liked_indices))
+        user_items = csr_matrix((values, (rows, liked_indices)), shape = (1, len(self.movie_to_idx))) #row = user, column = movie  0s and 1s
+
+        item_indices, scores = self.model.recommend(userid = 0, 
+                                                    user_items = user_items, 
+                                                    N=k, filter_already_liked_items = True, 
+                                                    recalculate_user = True)
+        
+        recommendations = []
+        for item_idx, score in zip(item_indices, scores):
+            movie_id = self.idx_to_movie[item_idx]
+            if return_scores:
+                recommendations.append((movie_id, float(score)))
+            else:
+                recommendations.append(movie_id)
+
+        return recommendations 
+
