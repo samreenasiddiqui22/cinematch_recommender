@@ -10,3 +10,5 @@ xgboost
 pydantic 
 uvicorn
 pyarrow
+pytest
+httpx
