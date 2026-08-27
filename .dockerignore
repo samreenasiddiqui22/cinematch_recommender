@@ -1,0 +1,13 @@
+.git
+.github
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+notebooks/
+mlruns/
+mlflow.db
+.venv/
+venv/
+.env
+.DS_Store

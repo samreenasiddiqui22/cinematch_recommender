@@ -1,4 +1,6 @@
 from pathlib import Path 
+from src.recommender.ranking.candidates import generate_candidates_for_user
+
 
 import joblib 
 import numpy as np 
@@ -26,15 +28,7 @@ class RecommendationEngine:
         "als" : self.content
         }
 
-        candidates = {}
-        for model_name, model in models.items():
-            recommendations = model.recommend(user_id, candidate_k, return_scores = True)
-            for rank, (movie_id, score) in enumerate(recommendations, start = 1):
-                if movie_id not in candidates: 
-                    candidates[movie_id] = {'movie_id': movie_id}
-                candidates[movie_id][f'{model_name}_score'] = float(score)
-                candidates[movie_id][f'{model_name}_rank'] = rank
-        candidate_df = pd.DataFrame(candidates.values())
+        candidate_df = generate_candidates_for_user(model=models, user_id=user_id, candidate_k=candidate_k)
         if candidate_df.empty:
             return []
         
@@ -54,23 +48,14 @@ class RecommendationEngine:
         "item_cf" : self.content, 
         "als" : self.content }
 
-        candidates = {}
-        for model_name, model in models.items():
-            recommendations = model.recommend_from_items(liked_movie_ids = liked_movie_ids, k = candidate_k, return_scores = True)
-            for rank, (movie_id, score) in enumerate(recommendations, start = 1):
-                if movie_id in liked_movie_ids:
-                    continue 
-                if movie_id not in candidates: 
-                    candidates[movie_id] = {'movie_id': movie_id}
-                candidates[movie_id][f'{model_name}_score'] = float(score)
-                candidates[movie_id][f'{model_name}_rank'] = rank
-        if not candidates:
+        candidate_df = generate_candidates_for_user(model=models, liked_movie_ids=liked_movie_ids, candidate_k=candidate_k)
+        if candidate_df.empty:
             return []
-        candidate_df = pd.DataFrame(candidates.values())
 
         candidate_df['ranker_score'] = (self.ranker.predict(candidate_df[self.feature_cols]))
         top_movies = (candidate_df.sort_values('ranker_score', ascending= False)).head(k)
 
         top_movies = top_movies.merge(self.movies[['movie_id','title','genres']], on = 'movie_id', how = 'left')
+
         return top_movies[['movie_id','title','genres','ranker_score']].to_dict(orient = 'records')
    

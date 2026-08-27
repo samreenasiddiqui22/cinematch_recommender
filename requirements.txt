@@ -1,2 +1,12 @@
 implicit 
 mlflow
+numpy 
+pandas
+fastapi
+scipy
+scikit-learn
+joblib
+xgboost
+pydantic 
+uvicorn
+pyarrow
